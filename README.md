@@ -1,53 +1,61 @@
-# swift-parser
+# SWIFT Code Parser and API
 
-This project is a Go application for parsing SWIFT codes and exposing a REST API.
+## Quick Start
 
-## Project Structure
-
-```
-swift-parser
-├── cmd
-│   └── server
-│       └── main.go
-├── internal
-│   ├── api
-│   │   ├── handlers.go
-│   │   └── routes.go
-│   ├── parser
-│   │   └── swift.go
-│   └── models
-│       └── swift.go
-├── pkg
-│   └── validator
-│       └── swift.go
-├── go.mod
-├── go.sum
-└── README.md
+1. **Clone the Repository**
+```powershell
+git clone <repository-url>
+cd swift-parser
 ```
 
-## Setup Instructions
+2. **Start the Services**
+```powershell
+docker compose up -d
+```
+This will:
+- Create PostgreSQL database
+- Initialize schema
+- Start the API server
 
-1. Clone the repository:
-   ```
-   git clone <repository-url>
-   cd swift-parser
-   ```
+3. **Import SWIFT Codes Data**
+```powershell
+go run cmd/db/init.go
+```
 
-2. Install dependencies:
-   ```
-   go mod tidy
-   ```
+4. **Test API Endpoints**
 
-3. Run the application:
-   ```
-   go run cmd/server/main.go
-   ```
+Using PowerShell:
+```powershell
+# Get SWIFT code details
+Invoke-RestMethod -Uri "http://localhost:8080/v1/swift-codes/ANIBAWA1XXX" -Method GET
 
-## Usage
+# Get country codes
+Invoke-RestMethod -Uri "http://localhost:8080/v1/swift-codes/country/TR" -Method GET
 
-- **GET /swift**: Retrieve information about a SWIFT code.
-- **POST /swift**: Submit a SWIFT code for parsing and validation.
+# Add new SWIFT code
+$body = @{
+    "swiftCode" = "TESTTR00XXX"
+    "countryISO2" = "TR"
+    "countryName" = "TURKEY"
+    "bankName" = "TEST BANK"
+    "address" = "TEST ADDRESS"
+    "isHeadquarter" = $true
+} | ConvertTo-Json
 
-## Contributing
+Invoke-RestMethod -Uri "http://localhost:8080/v1/swift-codes" -Method POST -Body $body -ContentType "application/json"
+```
 
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
+## Requirements
+- Docker Desktop
+- Go 1.21+ (for local development)
+- PostgreSQL client (optional, for direct DB access)
+
+## Stopping the Services
+```powershell
+docker compose down
+```
+
+To remove all data and start fresh:
+```powershell
+docker compose down -v
+```

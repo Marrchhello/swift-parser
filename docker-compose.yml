@@ -25,6 +25,8 @@ services:
       - POSTGRES_DB=postgres
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./internal/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./internal/parser/testdata:/Interns_2025_SWIFT_CODES.xlsx
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
