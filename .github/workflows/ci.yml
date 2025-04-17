@@ -35,45 +35,30 @@ jobs:
     - name: Install dependencies
       run: go mod download
 
-    - name: Create schema
+    - name: Initialize Database
       run: |
+        # Drop existing tables if they exist
+        PGPASSWORD=3107 psql -h localhost -U postgres -d postgres -c "DROP TABLE IF EXISTS swift_codes CASCADE;"
+        
+        # Create schema
         PGPASSWORD=3107 psql -h localhost -U postgres -d postgres -f internal/database/schema.sql
+        
+        # Insert test data
+        PGPASSWORD=3107 psql -h localhost -U postgres -d postgres -c "
+          INSERT INTO swift_codes (swift_code, country_iso2, country_name, bank_name, address, is_headquarter)
+          VALUES 
+            ('ANIBAWA1XXX', 'TR', 'TURKEY', 'TEST BANK HQ', 'TEST ADDRESS 123', true),
+            ('BCHICLR10R2', 'TR', 'TURKEY', 'TEST BANK BRANCH', 'BRANCH ADDRESS 456', false)
+          ON CONFLICT DO NOTHING;"
       env:
         PGHOST: localhost
         PGPORT: 5432
 
-    - name: Run unit tests
-      run: go test ./internal/... -v
+    - name: Run tests
+      run: go test ./... -v
       env:
         DB_HOST: localhost
         DB_PORT: 5432
         DB_USER: postgres
         DB_PASSWORD: 3107
         DB_NAME: postgres
-
-    - name: Build and start application
-      run: |
-        go build -o swift-parser cmd/db/init.go
-        ./swift-parser &
-        sleep 15  # Give more time for app to start
-      env:
-        DB_HOST: localhost
-        DB_PORT: 5432
-        DB_USER: postgres
-        DB_PASSWORD: 3107
-        DB_NAME: postgres
-
-    - name: Run integration tests
-      run: go test ./tests/integration/... -v -count=1
-      env:
-        DB_HOST: localhost
-        DB_PORT: 5432
-        DB_USER: postgres
-        DB_PASSWORD: 3107
-        DB_NAME: postgres
-
-    - name: Check logs if tests fail
-      if: failure()
-      run: |
-        ps aux | grep swift-parser
-        tail -n 50 /tmp/swift-parser.log
