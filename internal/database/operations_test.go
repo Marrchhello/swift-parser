@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"os"
 	"swift-parser/internal/models"
 	"testing"
 )
@@ -11,6 +12,18 @@ func setupTestDB(t *testing.T) *DB {
 	if err != nil {
 		t.Fatalf("Failed to connect to database: %v", err)
 	}
+
+	// Create schema
+	schemaSQL, err := os.ReadFile("../../internal/database/schema.sql")
+	if err != nil {
+		t.Fatalf("Failed to read schema file: %v", err)
+	}
+
+	_, err = db.Exec(string(schemaSQL))
+	if err != nil {
+		t.Fatalf("Failed to create schema: %v", err)
+	}
+
 	return db
 }
 
