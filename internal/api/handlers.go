@@ -1,7 +1,9 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 	"swift-parser/internal/models"
 
 	"github.com/gin-gonic/gin"
@@ -37,7 +39,13 @@ func (r *Router) GetSWIFTCode(c *gin.Context) {
 
 	code, err := r.db.GetSWIFTCode(swiftCode)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "SWIFT code not found"})
+		if err.Error() == "swift code not found" {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": fmt.Sprintf("SWIFT code '%s' not found in database", swiftCode),
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
 	}
 
@@ -76,14 +84,27 @@ func (r *Router) GetSWIFTCode(c *gin.Context) {
 }
 
 func (r *Router) GetSWIFTCodesByCountry(c *gin.Context) {
-	countryCode := c.Param("countryISO2")
+	countryCode := strings.ToUpper(c.Param("countryISO2"))
 
-	codes, err := r.db.GetSWIFTCodesByCountry(countryCode)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Country not found"})
+	// Validate country code format
+	if len(countryCode) != 2 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid country code format. Must be 2 letters (ISO-2)",
+		})
 		return
 	}
 
+	codes, err := r.db.GetSWIFTCodesByCountry(countryCode)
+	if err != nil {
+		if err.Error() == "no swift codes found for this country" {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": fmt.Sprintf("No SWIFT codes found for country '%s'", countryCode),
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		return
+	}
 	swiftCodes := make([]BranchResponse, len(codes))
 	for i, code := range codes {
 		swiftCodes[i] = BranchResponse{
