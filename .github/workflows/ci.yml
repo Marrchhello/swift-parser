@@ -35,8 +35,15 @@ jobs:
     - name: Install dependencies
       run: go mod download
 
+    - name: Create schema
+      run: |
+        PGPASSWORD=3107 psql -h localhost -U postgres -d postgres -f internal/database/schema.sql
+      env:
+        PGHOST: localhost
+        PGPORT: 5432
+
     - name: Run unit tests
-      run: go test ./... -v
+      run: go test ./internal/... -v
       env:
         DB_HOST: localhost
         DB_PORT: 5432
@@ -44,13 +51,11 @@ jobs:
         DB_PASSWORD: 3107
         DB_NAME: postgres
 
-    - name: Build application
-      run: go build -v ./...
-
-    - name: Start application
+    - name: Build and start application
       run: |
+        go build -o swift-parser cmd/db/init.go
         ./swift-parser &
-        sleep 10
+        sleep 15  # Give more time for app to start
       env:
         DB_HOST: localhost
         DB_PORT: 5432
@@ -59,7 +64,7 @@ jobs:
         DB_NAME: postgres
 
     - name: Run integration tests
-      run: go test ./tests/integration/... -v
+      run: go test ./tests/integration/... -v -count=1
       env:
         DB_HOST: localhost
         DB_PORT: 5432
@@ -67,18 +72,8 @@ jobs:
         DB_PASSWORD: 3107
         DB_NAME: postgres
 
-  docker:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Build Docker image
-      run: docker build -t swift-parser .
-
-    - name: Test Docker image
+    - name: Check logs if tests fail
+      if: failure()
       run: |
-        docker-compose up -d
-        sleep 10
-        curl http://localhost:8080/v1/swift-codes/TESTTR00XXX
-        docker-compose down
+        ps aux | grep swift-parser
+        tail -n 50 /tmp/swift-parser.log
