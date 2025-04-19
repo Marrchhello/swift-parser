@@ -16,9 +16,10 @@ COPY . .
 COPY internal/database/schema.sql /app/internal/database/
 COPY internal/parser/testdata /app/internal/parser/testdata/
 
-# Build the application
-RUN go build -o main cmd/db/init.go
+# Build the API server
+RUN go build -o main cmd/server/main.go
 
 EXPOSE 8080
 
+# Start the API server
 CMD ["./main"]

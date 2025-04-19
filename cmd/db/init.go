@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"swift-parser/internal/api"
 	"swift-parser/internal/database"
 	"swift-parser/internal/parser"
 	"time"
@@ -15,7 +14,7 @@ import (
 )
 
 func main() {
-	log.Println("Starting application initialization...")
+	log.Println("Starting database initialization...")
 
 	// Load environment variables
 	if err := godotenv.Load(); err != nil {
@@ -62,16 +61,6 @@ func main() {
 	}
 	log.Printf("✅ Parsed %d SWIFT codes from Excel", len(codes))
 
-	// Debug info for specific SWIFT code
-	for _, code := range codes {
-		if code.SwiftCode == "AAISALTRXXX" {
-			log.Printf("📍 Found SWIFT code: %s", code.SwiftCode)
-			log.Printf("   Bank: %s", code.BankName)
-			log.Printf("   Country: %s (%s)", code.CountryName, code.CountryISO2)
-			log.Printf("   Is Headquarter: %v", code.IsHeadquarter)
-		}
-	}
-
 	// Insert data into database
 	ctx := context.Background()
 	if err := db.InsertSwiftCodes(ctx, codes); err != nil {
@@ -79,22 +68,5 @@ func main() {
 	}
 	log.Printf("✅ Inserted %d SWIFT codes in %v", len(codes), time.Since(start))
 
-	// Setup and start API server
-	router := api.NewRouter(db)
-	engine := router.Setup()
-
-	fmt.Println("\n🚀 API Server Ready!")
-	fmt.Println("\nAvailable endpoints:")
-	fmt.Println("1. GET    http://localhost:8080/v1/swift-codes/{swift-code}")
-	fmt.Println("2. GET    http://localhost:8080/v1/swift-codes/country/{countryISO2}")
-	fmt.Println("3. POST   http://localhost:8080/v1/swift-codes")
-	fmt.Println("4. DELETE http://localhost:8080/v1/swift-codes/{swift-code}")
-	fmt.Println("\nExample usage:")
-	fmt.Println("- GET http://localhost:8080/v1/swift-codes/BCHICLRMXXX")
-	fmt.Println("- GET http://localhost:8080/v1/swift-codes/country/TR")
-	fmt.Println("\n📡 Starting server on :8080...")
-
-	if err := engine.Run(":8080"); err != nil {
-		log.Fatalf("⚠️ Server failed to start: %v", err)
-	}
+	log.Println("🎉 Database initialization complete!")
 }
