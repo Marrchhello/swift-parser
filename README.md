@@ -112,7 +112,12 @@ go test ./... -v
 ```powershell
 $response = Invoke-RestMethod -Uri "http://localhost:8080/v1/swift-codes/BCECCLRFXXX" -Method GET
 $response | ConvertTo-Json -Depth 10
-```
+---
+
+```powershell
+
+$response = Invoke-RestMethod -Uri "http://localhost:8080/v1/swift-codes/BCECCLRFXXX" -Method GET
+$response | ConvertTo-Json -Depth 10```
 
 ---
 
