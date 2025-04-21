@@ -119,6 +119,11 @@ $response = Invoke-RestMethod -Uri "http://localhost:8080/v1/swift-codes/THRIBGS
 $response | ConvertTo-Json -Depth 10
 ```
 
+```powershell
+$response = Invoke-RestMethod -Uri "http://localhost:8080/v1/swift-codes/LACBLV2XEKS" -Method GET
+$response | ConvertTo-Json -Depth 10
+```
+
 ---
 
 ### 🌍 2. Get Country SWIFT Codes
