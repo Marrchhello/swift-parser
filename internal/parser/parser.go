@@ -16,7 +16,6 @@ func ParseExcelFile(filePath string) ([]models.SwiftCode, error) {
 	}
 	defer f.Close()
 
-	// Get the first sheet
 	sheetName := f.GetSheetList()[0]
 	rows, err := f.GetRows(sheetName)
 	if err != nil {
@@ -24,11 +23,10 @@ func ParseExcelFile(filePath string) ([]models.SwiftCode, error) {
 	}
 
 	var swiftCodes []models.SwiftCode
-	// Skip header row
 	for i := 1; i < len(rows); i++ {
 		row := rows[i]
 		if len(row) < 7 {
-			continue // Skip invalid rows
+			continue
 		}
 
 		swiftCode := models.SwiftCode{

@@ -16,13 +16,11 @@ import (
 func main() {
 	log.Println("Starting database initialization...")
 
-	// Load environment variables
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("⚠️ Error loading .env file")
 	}
 	log.Println("✅ Environment variables loaded")
 
-	// Database connection
 	connStr := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		os.Getenv("DB_HOST"),
@@ -39,7 +37,6 @@ func main() {
 	defer db.Close()
 	log.Println("✅ Connected to database")
 
-	// Create schema
 	schemaPath := filepath.Join("internal", "database", "schema.sql")
 	schemaSQL, err := os.ReadFile(schemaPath)
 	if err != nil {

@@ -8,8 +8,6 @@ import (
 )
 
 func TestParseExcelFile(t *testing.T) {
-	// Create testdata directory if it doesn't exist first:
-	// mkdir testdata
 
 	tests := []struct {
 		name     string

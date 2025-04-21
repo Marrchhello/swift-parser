@@ -11,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TestResponse matches the API response structure
 type TestResponse struct {
 	Address       string             `json:"address"`
 	BankName      string             `json:"bankName"`

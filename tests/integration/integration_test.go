@@ -13,10 +13,8 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	// Setup test environment
 	log.Println("Setting up integration test environment...")
 
-	// Wait for API to be ready
 	client := &http.Client{Timeout: 5 * time.Second}
 	maxRetries := 15
 	baseURL := "http://localhost:8080"
@@ -31,7 +29,6 @@ func TestMain(m *testing.M) {
 		time.Sleep(time.Second)
 	}
 
-	// Run tests
 	code := m.Run()
 	os.Exit(code)
 }
@@ -40,7 +37,6 @@ func TestSWIFTCodeOperations(t *testing.T) {
 	baseURL := "http://localhost:8080"
 	client := &http.Client{Timeout: 30 * time.Second}
 
-	// Test data cleanup
 	cleanup := func() {
 		req, _ := http.NewRequest("DELETE", baseURL+"/v1/swift-codes/TESTTR00XXX", nil)
 		client.Do(req)
@@ -67,7 +63,6 @@ func TestSWIFTCodeOperations(t *testing.T) {
 			},
 			wantStatus: http.StatusCreated,
 		},
-		// Add more test cases here
 	}
 
 	for _, tt := range tests {
