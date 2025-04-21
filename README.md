@@ -110,7 +110,7 @@ go test ./... -v
 ### 📖 1. Get SWIFT Code Details
 
 ```powershell
-$response = Invoke-RestMethod -Uri "http://localhost:8080/v1/swift-codes/AAISALTRXXX" -Method GET
+$response = Invoke-RestMethod -Uri "http://localhost:8080/v1/swift-codes/BCECCLRFXXX" -Method GET
 $response | ConvertTo-Json -Depth 10
 ```
 
